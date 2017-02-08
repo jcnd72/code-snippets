@@ -1,0 +1,1145 @@
+# Your snippets
+#
+# Atom snippets allow you to enter a simple prefix in the editor and hit tab to
+# expand the prefix into a larger code block with templated values.
+#
+# You can create a new snippet in this file by typing "snip" and then hitting
+# tab.
+#
+# An example CoffeeScript snippet to expand log to console.log:
+#
+# '.source.coffee':
+#   'Console log':
+#     'prefix': 'log'
+#     'body': 'console.log $1'
+#
+# Each scope (e.g. '.source.coffee' above) can only be declared once.
+#
+# This file uses CoffeeScript Object Notation (CSON).
+# If you are unfamiliar with CSON, you can read more about it in the
+# Atom Flight Manual:
+# http://flight-manual.atom.io/using-atom/sections/basic-customization/#_cson
+
+
+# JAVASCRIPT SNIPPETS _________________________________________________________
+'.source.js':
+
+  'Sponsor Scroller JS':
+    'prefix': 'sponsor-scroller'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Scrolls through single photo elements'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#sponsor-scroller'
+    'body': """
+        function sponsorScroll() {
+            function scrollSponsors(scrollType) {
+                switch (scrollType) {
+                    case "start":
+                        sponsorScrollerGroup.find(".pageEl:first-child").clone().appendTo(sponsorScrollerGroup),
+                            sponsorScrollerGroup.css("left", 0),
+                            scrollSponsorTimer = setInterval(function() {
+                                $(sponsorScrollerGroup).animate({
+                                    left: "-=" + sponsorScrollerWidth
+                                }, 500, function() {
+                                    sponsorScrollerGroup.css("left", 0),
+                                        sponsorScrollerGroup.find(".pageEl:first-child").remove(),
+                                        sponsorScrollerGroup.find(".pageEl:first-child").clone().appendTo(sponsorScrollerGroup)
+                                })
+                            }, 2e3);
+                        break;
+                    case "restart":
+                        scrollSponsorTimer = setInterval(function() {
+                            $(sponsorScrollerGroup).animate({
+                                left: "-=" + sponsorScrollerWidth
+                            }, 500, function() {
+                                sponsorScrollerGroup.css("left", 0),
+                                    sponsorScrollerGroup.find(".pageEl:first-child").remove(),
+                                    sponsorScrollerGroup.find(".pageEl:first-child").clone().appendTo(sponsorScrollerGroup)
+                            })
+                        }, 2e3);
+                        break;
+                    case "stop":
+                        clearTimeout(scrollSponsorTimer);
+                        break;
+                    case "next":
+                        $(sponsorScrollerGroup).animate({
+                            left: "-=" + sponsorScrollerWidth
+                        }, 500, function() {
+                            sponsorScrollerGroup.css("left", 0),
+                                sponsorScrollerGroup.find(".pageEl:first-child").remove(),
+                                sponsorScrollerGroup.find(".pageEl:first-child").clone().appendTo(sponsorScrollerGroup)
+                        });
+                        break;
+                    case "prev":
+                        sponsorScrollerGroup.find(".pageEl:last-child").remove(),
+                            sponsorScrollerGroup.find(".pageEl:last-child").clone().prependTo(sponsorScrollerGroup),
+                            sponsorScrollerGroup.css("left", -sponsorScrollerWidth),
+                            $(sponsorScrollerGroup).animate({
+                                left: "+=" + sponsorScrollerWidth
+                            }, 500, function() {})
+                }
+            }
+            if (0 === $("body.edit_mode").length) {
+                var sponsorScrollerContainer = ".sponsorScroller .column-1";
+                $(sponsorScrollerContainer).wrapInner('<div id="sponsorScrollerGroup"></div>');
+                var scrollSponsorTimer, sponsorScrollerGroup = $(sponsorScrollerContainer).find("#sponsorScrollerGroup"),
+                    sponsorScrollerWidth = sponsorScrollerGroup.find(".pageEl:first-child").outerWidth();
+                $(sponsorScrollerContainer).append('<div id="sponsorScrollerNext"></div><div id="sponsorScrollerPrev"></div>'),
+                    scrollSponsors("start"),
+                    $(sponsorScrollerContainer).hover(function() {
+                        scrollSponsors("stop")
+                    }, function() {
+                        scrollSponsors("restart")
+                    }),
+                    $("#sponsorScrollerStart").click(function() {
+                        scrollSponsors("restart")
+                    }),
+                    $("#sponsorScrollerStop").click(function() {
+                        scrollSponsors("stop")
+                    }),
+                    $("#sponsorScrollerNext").click(function() {
+                        scrollSponsors("next")
+                    }),
+                    $("#sponsorScrollerPrev").click(function() {
+                        scrollSponsors("prev")
+                    })
+            }
+        }
+        """
+
+  'Multi Column JS':
+    'prefix': 'multi-column'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Makes as many columns as you want and fits them on one line'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#multi-column'
+    'body': """
+      // Run this function on document ready and resize
+        function multiColumn() {
+            var $section = $('.user_mode .multi-column div.pageEl');
+            var $screenWidth = $(window).width();
+            //strip column styling from the multi-column CTA items and wrap in div with new class
+            $section.unwrap('div');
+            $section.wrap('<div class="column col-sm-12 col-md-3"></div>');
+            //Adjusts the width of CTA based on number of items
+            if (($screenWidth >= 1024)) {
+                var numberOfItemsCTA = $('.multi-column ${1: %PAGE-ELEMENT-CLASS% }').length;
+                $('.multi-column .col-md-3').css({
+                    'width': 100 / numberOfItemsCTA + '%'
+                });
+            } else {
+                $('.multi-column .col-md-3').css({
+                    'width': ''
+                });
+            };
+        }
+          """
+
+  'News Slider with Previews JS':
+    'prefix': 'news-slider-previews'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Next and previous slides are displayed on left and right'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#news-slider-with-previews'
+    'body': """
+        $(document).on('instantiated.news_slide_show', 'body', function() {
+
+
+            if ($('.slideTray').length > 0) return;
+
+            var current = 0;
+            var slide = $('.user_mode .custom-slider .newsSlideShow-article');
+            var count = slide.length;
+
+            slide.wrapAll('<div class="slideTray" />');
+
+            var tray = $('.slideTray');
+
+            var slidew = slide.width();
+            var trayw = (slide.length + 4) * slidew;
+
+            var start = -1 * slidew;
+            var startfix = -1 * (trayw - (3 * slidew));
+            var end = -1 * (trayw - (2 * slidew));
+            var endfix = -1 * (slidew * 2);
+
+            var position = start - slidew;
+
+            tray.css('width', trayw + 'px');
+
+            $(slide[0]).clone().addClass('clone').appendTo(tray);
+            $(slide[1]).clone().addClass('clone').appendTo(tray);
+            $(slide[count - 1]).clone().addClass('clone').prependTo(tray);
+            $(slide[count - 2]).clone().addClass('clone').prependTo(tray);
+
+            var timer = setInterval(function() {
+                slidetray();
+            }, 7000);
+
+            nextprev();
+
+            $('.user_mode .custom-slider .newsSlideShow-container').hover(
+                function() {
+                    clearInterval(timer);
+                },
+                function() {
+                    reset();
+                }
+            );
+
+            function reset(options) {
+
+                defaults = $.extend({
+
+                    direction: 'forward',
+                    time: 7000
+
+                }, options)
+
+                if (defaults.direct === 'back') {
+                    clearInterval(timer);
+                    timer = setInterval(function() {
+                        slidetray({
+                            direction: defaults.direction
+                        });
+                    }, defaults.time);
+                }
+
+                clearInterval(timer);
+                timer = setInterval(function() {
+                    slidetray();
+                }, defaults.time);
+
+            }
+
+            function nextprev() {
+
+                $('.user_mode .custom-slider .newsSlideShow-next').click(function() {
+
+                    slidetray();
+                    reset();
+
+                });
+
+                $('.user_mode .custom-slider .newsSlideShow-prev').click(function() {
+
+                    slidetray({
+                        direction: 'back'
+                    });
+                    reset({
+                        direction: 'back'
+                    });
+
+                });
+            }
+
+            function slidetray(options) {
+                $('.custom-slider .newsSlideShow-article').stop();
+
+                var defaults = $.extend({
+
+                    direction: 'forward',
+                    slot: undefined
+
+                }, options);
+
+                if (defaults.slot !== undefined) {
+
+                    position = ((-1) * (defaults.slot * slidew)) - (2 * slidew);
+                    tray.css('left', position + 'px');
+                    reset();
+                    return;
+                }
+
+                position = (defaults.direction === 'back') ? position + slidew : position - slidew;
+                tray.css('left', position + 'px');
+
+                if (position === start) {
+
+                    setTimeout(function() {
+                        something(startfix)
+                    }, 970);
+
+                } else if (position === end) {
+
+                    setTimeout(function() {
+                        something(endfix)
+                    }, 970);
+                }
+
+            }
+
+            function something(fix) {
+                tray.addClass('noTransition')
+                    .css('left', (fix) + 'px')
+                    .focus()
+                    .removeClass('noTransition');
+
+                position = fix;
+            }
+
+            // Increase Image Quality
+            $('.newsSlideShow-article img').each(function() {
+                var $this = $(this);
+                $this.attr('src', $this.attr('src').replace('_large', ''));
+            });
+        });
+
+        """
+
+  'Map SVG JS':
+    'prefix': 'map-svg'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Clickable USA map'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#map-svg'
+    'body': """
+        (function($) {
+          $(function() {
+
+            function siteNum(){
+              return $('html').attr('id').replace("ngin", "");
+            }
+          	//Set Default & Override Colors
+          	 var svgMap = {
+            	 usa:'/_site/images/map/usa.svg',
+          	   canada:'/map/svg/canada.svg'
+          	};
+            var svgMapPath = 'http://assets.ngin.com/site_files/'+siteNum()+svgMap.usa;
+          	var defaults = {
+          	    strokeColor:"#fff",
+          	    fillColor:"#bb141a",
+          	    strokeWidth:1.5,
+          	    fillOpacity:1,
+          	    strokeopacity:1
+          	};
+          	var overrides = {
+          	    strokeColor:"#fff",
+          	    fillColor:"#180f5e",
+          	    strokeWidth:1.5,
+          	    fillOpacity:1,
+          	    strokeopacity:1
+          	};
+          	//Check for code element with .svgMap custom class added to it.
+          	if($('.svgMap').length == true){
+            	  //Find table element with custom class .tableData added to it
+            	  //Split its element id
+            	  var elementId = $('.tableData').attr('id').split("_")[1];
+            	  //Create jsonLink to table elements data
+                jsonLink = 'http://' + window.location.host + '/page_element/ajax/' + elementId + '.json';
+                //Get table JSON data and build map
+          		$.get(jsonLink, function(tableData) {
+                //console.log(tableData);
+          			loadedLength = tableData.length;
+                mobileListBuilder($('.mapOverlay'), tableData);
+          			//Load SVG MAP
+          			$('.svgMap').load(svgMapPath, null, function(data) {
+          				//Insert Styles & HTML Elements
+          				$(this).append('<div id="previewState"></div>');
+          				//Variables
+          			 	data = $(data);
+          			 	state = data.find('path');
+          			    stateLength = state.length;
+          			    newSvg = new Object();
+
+
+          			    //Set Defaults if Overide is Not Enabled
+          			    hoverStyle = '';
+          			    for(i = 0; i < stateLength; i++){
+          			    	//Define vars
+                      var currentState = state[i];
+          					var getId = currentState.getAttribute("id");
+          					//Set Defaults
+          			   		currentState.setAttribute("fill", defaults.fillColor);
+          			   		currentState.setAttribute("stroke-width", defaults.strokeWidth);
+          			   		currentState.setAttribute("stroke", defaults.strokeColor);
+          			   		currentState.setAttribute("fill-opacity", defaults.fillOpacity);
+          			   		//Override
+          			   		currentState.setAttribute("fill-opacity", overrides.fillOpacity);
+          			   		//Add MouseOver Event
+          			   		currentState.addEventListener("mouseover",function(){
+          		       			var thisState = this.getAttribute("id");
+          		       			var previewState = document.getElementById('previewState').style.display = 'none';
+          		       		});
+          			   		//Store New Object
+          			   		newSvg[i] = currentState;
+          			        //Compare CurrentState to LoadedStates for match and Fill State
+          			        for(a = 0; a < loadedLength; a++){
+          			        	var loadedState = tableData[a].state.trim().toLowerCase().replace(/\s+/g, '');
+          			        	if(loadedState == getId){
+          			        		hoverStyle += '#'+getId+':hover{fill-opacity:1;cursor:pointer;fill:#180f5e;}';
+          			        		//State Matched Loaded Data
+          			        		onData = tableData[a];
+          			        		onState = onData.state;
+          							onName = onData.name;
+          							onLogo = onData.logo;
+          							onHref = onData.href;
+          							onDesc = onData.desc;
+          							//Add Loaded Data to SVG
+          							currentState.setAttribute("state", onState);
+          							currentState.setAttribute("name", onName);
+          							currentState.setAttribute("logo", onLogo);
+          							currentState.setAttribute("href", onHref);
+          							currentState.setAttribute("desc", onDesc);
+          			            	//Set Fill Overides
+          			           		currentState.setAttribute("fill", overrides.fillColor);
+          			           		currentState.setAttribute("stroke-width", overrides.strokeWidth);
+          			           		currentState.setAttribute("stroke", overrides.strokeColor);
+          					   		currentState.setAttribute("fill-opacity", 1);
+          					   		currentState.setAttribute("stroke-opacity", overrides.strokeopacity);
+          					   		currentState.setAttribute("style", "path:hover{opacity:1;}");
+          					   		//Apply Button Events
+          			           		currentState.addEventListener("mouseover",function(e){
+          			           			var thisState = this.getAttribute("id");
+          			           			var thisName = this.getAttribute("name");
+          			           			var thisLogo = this.getAttribute("logo");
+          			           			var thisHref = this.getAttribute("href");
+          			           			var thisDesc = this.getAttribute("desc");
+          			           			/*var newHTML = '<a href="'+thisHref+'"><h2>'+thisName+'</h2><img src="'+thisLogo+'"/></a>';*/
+                                var newHTML = '<a href="'+thisHref+'"><img src="'+thisLogo+'"/></a>';
+          			           			var previewState = document.getElementById('previewState').innerHTML = newHTML;
+          			           				document.getElementById('previewState').style.display = "block";
+          			           		});
+          			           		currentState.addEventListener("mouseout",function(){
+          			           			var previewState = document.getElementById('previewState').innerHTML = '';
+          			           			document.getElementById('previewState').style.display = "none";
+          			           		});
+          			           		click = '';
+          			           		if(currentState.getAttribute("href") == '' || currentState.getAttribute("href") == '#'){
+          				           		//Dont Add Click Event
+          			           		}
+          			           		else{
+          				           		currentState.addEventListener("click",function(){
+          									click++;
+          									var thisHref = this.getAttribute("href");
+          									var key = getId+click;
+          									if(key == getId+'1'){
+          										this.setAttribute("fill",overrides.fillColor);
+          										window.open(thisHref,'_blank');
+          									}
+          									else if(key == getId+'2'){
+          										this.setAttribute("fill",overrides.fillColor);
+          										click = 0;
+          										window.open(thisHref,'_blank');
+          									}
+          				           		});
+          			           		}
+          			           		//Store New Object
+          			           		newSvg[i] = currentState;
+          				        }
+          			        }
+          			    }
+          				newStyles = '<style>'+hoverStyle+'</style>';
+          			    $('.svgMap').prepend(newStyles);
+          			    previewHover($('.svgMap'),get_browser());
+          			    //Build New Map
+          			    $('#map').empty();
+          			    for(g = 0; g < stateLength; g++){
+          				    $('#map').append(newSvg[g]);
+          			    }
+          			});
+          		});
+          	}
+          	else{
+          		//No Map
+          	}
+          		/* Map Functions */
+          		function previewHover(doc,browser){
+          			doc.mousemove(function(e){
+            			//Optimize scrollTop for various borwsers
+          				if(browser == "Firefox"){
+          					theTop = document.documentElement.scrollTop
+          				}
+          				else if(browser == "Chrome" || browser == "Safari" || browser == "Opera"){
+          					theTop = document.body.scrollTop;
+          				}
+          				else{
+          					theTop = $('html').scrollTop();
+          				}
+          				$("#previewState").css({left:e.pageX, top:e.pageY-theTop+10});
+          				e.stopPropagation();
+          			});
+          		 }
+          		function stateClick(s,b){
+          			var click = 0;
+          		    s.addEventListener("mousedown",function(){
+          				click++;
+          				var key = b+click;
+          				if(key == b+'1'){
+          			    	s.setAttribute("fill",overrides.fillColor);
+          				}
+          				else if(key == b+'2'){
+          			    	s.setAttribute("fill-opacity",overrides.fillOpacity);
+          			    	click = 0;
+          				}
+          			},false);
+          		}
+          		function get_browser(){
+          			var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+          			if(/trident/i.test(M[1])){
+          			    tem=/\brv[ :]+(\d+)/g.exec(ua) || [];
+          			    return 'IE '+(tem[1]||'');
+          			    }
+          			if(M[1]==='Chrome'){
+          			    tem=ua.match(/\bOPR\/(\d+)/)
+          			    if(tem!=null)   {return 'Opera '+tem[1];}
+          			    }
+          			M=M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+          			if((tem=ua.match(/version\/(\d+)/i))!=null) {M.splice(1,1,tem[1]);}
+          			return M[0];
+          		}
+
+              function mobileListBuilder(container, data){
+                  container.append('<div id="mobileView"></div>');
+                  for (var i = 0; i < data.length; i++) {
+                    var idata = data[i];
+                    $('#mobileView').append('<a id="maplist'+i+'" class="maplist'+i+'" title="'+idata.name+'" target="_blank" href="' + idata.href + '"><img src="'+idata.logo+'"/><span>'+idata.name+'</span><i>&rsaquo;</i></a>');
+                  }
+                }
+          });
+        }(jQuery));
+
+
+        """
+
+
+
+
+# CSS SNIPPETS _________________________________________________________
+'.source.scss':
+
+  'Sponsor Scroller CSS':
+    'prefix': 'sponsor-scroller'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Scrolls through single photo elements'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#sponsor-scroller'
+    'body': """
+        // Sponsor Scoller __________________________________
+          // Requirements
+          // + CSS code Snippet (sponsorscroller)
+          // + JS code Snippet (sponsorscroller)
+          // + Add class "sponsorScoller" to a single column layout container
+          // + Add single photo elements to container
+
+              .user_mode .layoutContainer.sponsorScroller {
+                  background: #fff;
+                  margin: 0;
+                  position: relative;
+                  border-top: 1px solid $link-color;
+                  border-bottom: 1px solid $link-color;
+                  bottom: -15px;
+                  width: 100vw;
+                  margin-left: calc(-1*(100vw - 100%)/2);
+                  padding: 0;
+
+                  .pageEl {
+                      display: inline-block;
+                      width: 300px;
+                      text-align: center;
+                      padding: 0 10px;
+                      vertical-align: middle;
+                      box-sizing: border-box;
+                      height: 80px;
+                      border-right: solid 1px $link-color;
+                      padding: 0 40px;
+                      transition: 0.2s ease-in;
+
+                      &:hover {
+                          background: #eeeeee;
+
+                          .pageElement.heroPhotoElement img {
+                              filter: grayscale(0);
+                              opacity: 1;
+                          }
+                      }
+
+                      .pageElement.heroPhotoElement {
+                          overflow: hidden;
+                          margin: 0;
+                          padding: 15px 40px;
+
+                          img {
+                              height: auto;
+                              filter: grayscale(100%);
+                              opacity: 0.75;
+                              transition: 0.2s ease-in;
+                              max-height: 50px;
+                              border: none;
+                          }
+                      }
+                  }
+              }
+
+              .user_mode .sponsorScroller .column-1 {
+                  width: 100%;
+                  height: 80px;
+                  overflow: hidden;
+                  white-space: nowrap;
+                  box-sizing: border-box;
+                  font-size: 0;
+                  text-align: center;
+
+                  #sponsorScrollerGroup {
+                      position: relative;
+                      left: 0;
+                      padding: 0;
+                      margin: 0 21px;
+                      height: 80px;
+                  }
+
+                  #sponsorScrollerNext,
+                  #sponsorScrollerPrev {
+                      width: 35px;
+                      height: 80px;
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      background-color: white;
+                      cursor: pointer;
+                      transition: background-color 0.5s ease;
+                      border-right: 1px solid $bronze;
+                      border-left: 1px solid $bronze;
+                      display: table;
+
+                      &:after {
+                          content: '\f100';
+                          font-family: fontAwesome;
+                          margin: 0 auto;
+                          font-size: 30px;
+                          color: $link-color;
+                          display: table-cell;
+                          vertical-align: middle;
+                      }
+
+                      &:hover {
+                          background-color: #eeeeee;
+                      }
+                  }
+
+                  #sponsorScrollerNext {
+                      left: auto;
+                      right: 0;
+
+                      &:after {
+                          content: '\f101';
+                      }
+                  }
+              }
+        """
+
+  'Multi Column CSS':
+    'prefix': 'multi-column'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Makes as many columns as you want and fits them on one line'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#multi-column'
+    'body': """
+       // Multi Column __________________________________
+       // Requirements
+       // + CSS code Snippet (multi-column)
+       // + JS code Snippet (multi-column)
+       // + Add class "multi-column" to a 3 column layout container
+       // + Add classes to page elements you want to be affected
+       .multi-column {
+           position: relative;
+           z-index: 1;
+           display: block;
+           padding: 15px;
+           background-color: white;
+
+           .column {
+               flex: none;
+           }
+
+           .col-md-3,
+           .col-sm-12 {
+               padding: 0;
+               margin: 0;
+           }
+       }
+       @media only screen and (max-width:1024px) {
+       .multi-column {
+           display: flex;
+           flex-wrap: wrap;
+
+           .column {
+               flex: 1 1 50%;
+               border-bottom: 1px solid white;
+           }
+         }
+       }
+
+        @media only screen and (max-width:768px) {
+             .multi-column .column {
+                 flex-basis: 100%;
+             }
+        }
+         """
+
+  'Full Width CSS':
+    'prefix': 'full-width'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Make row stretch outside container to full width'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#full-width'
+    'body': """
+       // Full Width CSS __________________________________
+        // Requirements
+        // + CSS Snippet (full-width)
+        // + Add class "full-width" to layout container
+
+        .full-width {
+            box-sizing: border-box;
+            padding: 0;
+            width: 100vw;
+            margin-left: calc(-1*(100vw - 100%)/2);
+            padding: 30px calc((100vw - 100%)/2);
+            background-color: white;
+
+            .edit_mode & {
+                max-width: 100%;
+                margin-left: 0;
+            }
+        }
+        """
+
+  'Full Width No Padding CSS':
+    'prefix': 'full-width-no-pad'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Make row stretch outside container to full width without padding to content'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#full-width-no-pad'
+    'body': """
+       // Full Width No Padding __________________________________
+        // Requirements
+        // + CSS Snippet (full-width-no-pad)
+        // + Add class "full-width-no-pad" to layout container
+
+        .full-width-no-pad {
+            width: 100vw;
+            margin-left: calc(-1*(100vw - 100%)/2);
+            padding: 0;
+
+            .edit_mode & {
+                max-width: 100%;
+                margin-left: 0;
+            }
+        }
+        """
+
+  'News Slider with Previews CSS':
+    'prefix': 'news-slider-previews'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Next and previous slides are displayed on left and right'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#news-slider-with-previews'
+    'body': """
+       // News Slider with Previews __________________________________
+        // Requirements
+        // + CSS Snippet (news-slider-previews)
+        // + JS Snippet (news-slider-previews)
+        // + Add class "news-slider-previews" to News Slider element
+          .user_mode .layoutContainer.custom-slider {
+              margin-top: -56px;
+              padding: 0;
+              background-color: transparent;
+              margin-bottom: -30px;
+
+              .column {
+                  padding: 0;
+              }
+
+              .has-mobile-nav & {
+                  margin-top: -15px;
+              }
+          }
+
+          .user_mode .custom-slider {
+              .slideTray {
+                  height: 100%;
+                  left: -1940px;
+                  position: absolute;
+                  transition: all 500ms ease-in-out;
+              }
+
+              .newsSlideShow-container {
+
+                  height: 450px !important;
+                  overflow: visible;
+                  margin-bottom: 0;
+                  padding-bottom: 0;
+
+                  &:after {
+                      background: rgba(0, 51, 102, .7);
+                      content: '';
+                      display: block;
+                      width: 100%;
+                      height: calc(100% - 2.5rem);
+                      top: 0;
+                      z-index: 10;
+                      position: absolute;
+                      padding-bottom: 0;
+                      margin-right: -100%;
+                      right: 0;
+                  }
+
+                  .newsSlideShow-controls {
+                      display: block;
+                  }
+
+                  .newsSlideShow-article {
+                      border: none;
+                      display: block !important;
+                      float: left;
+                      position: relative !important;
+                      width: 970px;
+                      left: 0 !important;
+
+                      img {
+                          top: 0 !important;
+                      }
+                  }
+
+                  .newsSlideShow-headline h1 {
+                      width: 100%;
+                      margin: 0;
+                      padding: 20px 7%;
+                      background: transparent;
+                  }
+
+                  &:before {
+                      display: none;
+                  }
+
+                  .newsSlideShow-more,
+                  .newsSlideShow-thumbnails {
+                      display: none;
+                  }
+
+                  .newsSlideShow-next.pill-small-right,
+                  .newsSlideShow-prev.pill-small-left {
+                      height: calc(100% - 2.5rem);
+                      background-color: rgba(0,0,0,.5);
+                      color: white;
+                      top: 0;
+                      font-size: 0;
+                  }
+
+                  .newsSlideShow-prev.pill-small-left:before {
+                      content: '\f104';
+                      font-size: 50px;
+                  }
+
+                  .newsSlideShow-next.pill-small-right:before {
+                      content: '\f105';
+                      font-size: 50px;
+                  }
+
+                  .newsSlideShow-controls .newsSlideShow-play,
+                  .newsSlideShow-controls .newsSlideShow-stop {
+                      display: none !important;
+                  }
+              }
+              //end newsSlideShow-containerlidehow
+
+              .slideTray.noTransition {
+                  transition: none;
+              }
+          }
+          //end .custom-slider
+          .user_mode .custom-slider .newsSlideShow-container:before {
+              margin-left: -100%;
+              display: block;
+              background: rgba(0, 51, 102, .7);
+              content: '';
+              display: block;
+              width: 100%;
+              height: calc(100% - 2.5rem);
+              top: 0;
+              z-index: 10;
+              position: absolute;
+              padding-bottom: 0;
+          }
+          @media only screen and (max-width: 1024px) {
+              #home-page.user_mode .layoutContainer.custom-slider {
+                  margin-left: -15px;
+                  width: calc(100% + 30px);
+
+                  .newsSlideShow-container {
+                      overflow: hidden;
+                      margin-bottom: 0;
+                      padding-bottom: 0;
+                  }
+              }
+          }
+        """
+
+  'Testimonial Slider CSS':
+    'prefix': 'testimonial-slider'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Media Slider that displays testimonials'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#testimonial-slider'
+    'body': """
+        // Testimonial Slider ________________________________
+          // Requirements
+          // 1. CSS Snippet (testimonial-slider)
+          // 2. Add class 'testimonial-slider' to Media Slider Element
+          // 3. Create background image to use on each testimonial
+
+          .testimonial-slider {
+              .mediaSlider {
+                  text-align: center;
+
+              }
+
+              .sn-media-slider {
+                  .flexslider {
+                      height: 240px !important;
+                      margin-top: 0;
+                  }
+
+                  .slider {
+                      background-color: white;
+
+                      .slide-overlay {
+                          padding: 0 7%;
+                          margin-top: 20px;
+                      }
+
+                      .slide-text {
+                          display: flex;
+                          flex-direction: column;
+                          justify-content: center;
+                      }
+
+                      .slide-title {
+                          font-size: 18px;
+                          font-family: $fontTwo;
+                          color: #4c4c4c;
+                          text-shadow: none;
+                          margin: 10px 0;
+                          order: 1;
+                      }
+
+                      .slide-description {
+                          font-family: $fontTwo;
+                          font-size: 21px;
+                          font-weight: 100;
+                          color: #999999;
+                          text-shadow: none;
+                          margin: 0;
+                          line-height: 33px;
+                          display: block;
+                      }
+                  }
+
+                  .flex-direction-nav {
+                      .flex-prev {
+                          left: 0;
+                      }
+
+                      .flex-next {
+                          right: 0;
+                      }
+
+                      a {
+                          opacity: 1;
+
+                          &:before {
+                              text-shadow: none;
+                              font-size: 30px;
+                              font-weight: 100;
+                              color: #ededed;
+                          }
+
+                      }
+
+                      a:hover:before {
+                          color: $accent-color;
+                      }
+
+                  }
+
+              }
+
+          }
+          @media only screen and (max-width:768px) {
+              .testimonial-slider .sn-media-slider {
+                  .flexslider {
+                      height: 270px !important;
+                  }
+
+                  .slider .slide-description {
+                      font-size: 19px;
+                      line-height: 35px;
+                  }
+              }
+          }
+          @media only screen and (max-width:500px) {
+              .testimonial-slider .sn-media-slider {
+                  .flexslider {
+                      height: 320px !important;
+                  }
+
+                  .slider .slide-description {
+                      font-size: 16px;
+                      line-height: 25px;
+                  }
+              }
+          }
+        """
+
+  'Map SVG CSS':
+    'prefix': 'map-svg'
+    'rightLabelHTML': '<span style="color:#008CC3">CUSTOM</span>'
+    'description': 'Clickable USA Map'
+    'descriptionMoreURL': 'https://github.com/sportngin/creative/wiki/Snippet-Reference-Library#map-svg'
+    'body': """
+        // Map SVG _________________________________________________
+          //Requirements
+          // 1. CSS Snippet (map-svg)
+          // 2. JS Snippet (map-svg)
+          // 3. Add Classes:
+            // Layout Conatiner: mapOverlay
+            // Table Element: tableData
+            // Code Element: svgMap
+          $primaryColor: #b02b26;
+          .svgMap{
+            position:relative;
+            margin-bottom:40px;
+          }
+          @media (min-width:767px) {
+            .mapOverlay #mobileView {
+              display:none;
+              }
+
+          #previewState{
+            position: fixed;
+            top:0;
+            left:0;
+            padding: 20px;
+            background: $link-color;
+            color:#fff;
+            border:4px solid white;
+            display:none;
+            margin-left:-137px;
+            margin-top:20px;
+
+            a{
+              display:block;
+              text-decoration:none;
+              img{
+                max-width:275px;
+                display:block;
+                margin:auto;
+                position:relative;
+                text-align:center;
+              }
+              h2{
+                text-decoration:none;
+                color:#fff;
+                font:100 1.4em/1.6em 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                letter-spacing: 1px;
+                text-align:center;
+                max-width:350px;
+              }
+            }
+            &:after
+            {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 133px;
+            border-style: solid;
+            border-width: 0 25px 10px 25px;
+            border-color: $link-color transparent;
+            display: block;
+            width: 0;
+            z-index: 1;
+            }
+
+            &:before
+            {
+            content: "";
+            position: absolute;
+            top: -15px;
+            left: 126px;
+            border-style: solid;
+            border-width: 0 32px 15px 32px;
+            border-color: white transparent;
+            display: block;
+            width: 0;
+            z-index: 0;
+            }
+            }
+          }
+
+          #map:after {
+            content:'';
+            background-image: url('/images/wrestler-circle.png');
+          }
+
+          .mapOverlay #mobileView {
+          width: calc(100% + 35px);
+          margin-left: -20px;
+          margin-bottom:20px;
+
+            a {
+              display:block;
+              box-sizing: border-box;
+              width:100%;
+              background-color: rgba(0,0,0,.3);
+              overflow:hidden;
+              padding:35px 20px;
+              position:relative;
+              border-top:1px solid #0D0D5D;
+              border-bottom:1px solid #0A0A13;
+              span {
+                color:white;
+                font-size:18px;
+                font-weight:500;
+                padding:0 25px 0 0;
+                display:block;
+                text-align: center;
+              }
+              i {
+                color:white;
+                font-size:80px;
+                font-weight:600;
+                position:absolute;
+                right:25px;
+                bottom:5%;
+                padding:0;
+              }
+            }
+
+            img {
+              clear:both;
+              display:block;
+              float:left;
+              width:200px;
+
+              }
+
+          }
+
+          @media (max-width:540px) {
+            .mapOverlay #mobileView {
+              padding:10px 0;
+              a {width:100%; margin:0 auto; display:block; padding:35px 0;
+                span {
+                  text-align:center;
+                  display:inline-block;
+                  width:100%;
+                  font-size:18px;
+                  font-weight:400;
+                  padding:10px 20px 0;
+                }
+                i {top:0;}
+                img {
+                  width:200px;
+                  margin:0 auto;
+                  padding:0;
+                  float:none;
+                }
+              }
+            }
+          }
+          @media (max-width:767px) {
+            #previewState {opacity:0; position:absolute; right:-100000px !important;}
+
+          }
+
+        """
